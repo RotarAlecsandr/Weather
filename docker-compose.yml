@@ -1,0 +1,34 @@
+version: '3.1'
+services:
+  app:
+    container_name: app-springboot-postgresql
+    image: app-springboot-postgresql
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dbpostgresql
+  dbpostgresql:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=erutus91
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=MB
+
+# Теперь мы можем запустить Postgres с помощью одной простой команды: $ docker-compose up
+# или запустите Postgres в фоновом режиме: $ docker-compose up -d
+# И остановите службу Postgres: $ docker-compose down
+
+#  В этом случае мы сопоставили наш локальный порт 5438 с портом 5432 (порт по умолчанию Postgres)
+#  внутри контейнера., Также мы будем сохранять данные на нашей машине, предотвращая потерю данных
+#  при удалении контейнеров, для этого мы добавляем том, используя папка postgres-data как место,
+#  где хранятся данные Postgres.
+
+#  Чтобы создать таблицы в нашей базе данных, нам нужно скопировать наш init.sql скрипт
+#  в/docker-entrypoint-initdb.d/
+
+# Официальный образ PostgreSQL Docker https://hub.docker.com/_/postgres/ позволяет нам размещать
+#  файлы SQL в /docker-entrypoint-initdb.d/ папке, и при первом запуске службы она импортирует
+#  и выполнит эти файлы SQL.
