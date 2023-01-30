@@ -1,19 +1,34 @@
-version: '3.1'
+version: '3.7'
 services:
   app:
-    container_name: app-springboot-postgresql
-    image: app-springboot-postgresql
-    build: ./
+    build: .
+    container_name: backend
+
+    environment:
+      DB_USER: postgres
+      DB_HOST: pg_db
+      DB_PASSWORD: erutus91
+      DB_NAME: MB
+
     ports:
-      - "8080:8080"
-    depends_on:
-      - dbpostgresql
-  dbpostgresql:
-    image: postgres
+      - "8082:8082"
+    #command: bash -c "uvicorn app.main:app --host 0.0.0.0"
+
+    restart: always
+
+  pg_db:
+    image:  postgres:14-alpine
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=erutus91
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=MB
+    volumes:
+      - data:/var/lib/postgresql/data
 
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: MB
+      POSTGRES_PASSWORD: erutus91
+
+    restart: always
+
+volumes:
+  data:

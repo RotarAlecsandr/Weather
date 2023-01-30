@@ -28,14 +28,18 @@ public class WeatherDataService {
     @Value("${json?key}")
     private String keys;
 
-    @Scheduled(fixedRate = 300000)
-    protected void saveWeather() throws Exception {
-        weatherAdd(City.BREST);
-        weatherAdd(City.BEREZA);
-        weatherAdd(City.PRUZHANY);
-        weatherAdd(City.MINSK);
-        weatherAdd(City.GOMEL);
+    @Transactional(readOnly = true)
+    public WeatherData findWeatherByCityAndDate(City city, LocalDateTime date) {
+
+        //WeatherData data = weatherDataRepository.findFirstByCityOrderByDateDesc(
+        //      city.name()).orElse(weatherAdd(city));
+
+
+        WeatherData firstByCityAndDateBeforeOrderByDateDesc = weatherDataRepository
+                .findFirstByCityAndDateBeforeOrderByDateDesc(city.name(), date);
+        return firstByCityAndDateBeforeOrderByDateDesc;
     }
+
 
     @Transactional(readOnly = true)
     protected WeatherData weatherAdd(@NotNull City city) {
@@ -76,13 +80,13 @@ public class WeatherDataService {
         return weatherData;
     }
 
-    @Transactional(readOnly = true)
-    public WeatherData findWeatherByCityAndDate(City city, LocalDateTime date) {
-        if (date == null) {
-            return weatherDataRepository.findFirstByCityOrderByDateDesc(
-                    city.name()).orElse(weatherAdd(city));
-        }
-        return weatherDataRepository.findFirstByCityAndDateBeforeOrderByDateDesc(
-                city.name(), date);
+    @Transactional
+    @Scheduled(fixedRate = 300000)
+    void saveWeather() {
+        weatherAdd(City.BREST);
+        weatherAdd(City.BEREZA);
+        weatherAdd(City.PRUZHANY);
+        weatherAdd(City.MINSK);
+        weatherAdd(City.GOMEL);
     }
 }
