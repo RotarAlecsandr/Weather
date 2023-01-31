@@ -1,34 +1,24 @@
 version: '3.7'
 services:
-  app:
-    build: .
-    container_name: backend
-
+  database:
+    image: postgres:14.0-alpine
+    restart: always
     environment:
-      DB_USER: postgres
-      DB_HOST: pg_db
-      DB_PASSWORD: erutus91
-      DB_NAME: MB
+      POSTGRES_PASSWORD: erutus91
+      POSTGRES_USER: rotar
+      container_name: mb
+    ports:
+      - "5444:5432"
+    volumes:
 
+      - ./createdb.sh:/docker-entrypoint-initdb.d/create_CREATE SEQUENCE hibernate_sequence START 1;createdb.sh
+  weathermonitoring:
+    image: weather
+    build: ./
     ports:
       - "8082:8082"
-    #command: bash -c "uvicorn app.main:app --host 0.0.0.0"
-
-    restart: always
-
-  pg_db:
-    image:  postgres:14-alpine
-    ports:
-      - "5432:5432"
-    volumes:
-      - data:/var/lib/postgresql/data
-
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: MB
-      POSTGRES_PASSWORD: erutus91
-
-    restart: always
+    depends_on:
+      - database
 
 volumes:
-  data:
+  apps-volumes:

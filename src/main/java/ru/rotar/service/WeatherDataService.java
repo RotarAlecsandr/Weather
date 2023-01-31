@@ -14,6 +14,7 @@ import ru.rotar.model.City;
 import ru.rotar.model.WeatherData;
 import ru.rotar.repository.WeatherDataRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -29,20 +30,19 @@ public class WeatherDataService {
     private String keys;
 
     @Transactional(readOnly = true)
-    public WeatherData findWeatherByCityAndDate(City city, LocalDateTime date) {
-
-        //WeatherData data = weatherDataRepository.findFirstByCityOrderByDateDesc(
-        //      city.name()).orElse(weatherAdd(city));
-
-
-        WeatherData firstByCityAndDateBeforeOrderByDateDesc = weatherDataRepository
-                .findFirstByCityAndDateBeforeOrderByDateDesc(city.name(), date);
-        return firstByCityAndDateBeforeOrderByDateDesc;
+    public WeatherData weatherInTheCity(City city){
+        LocalDateTime date = LocalDateTime.now();
+        if (date == null) {
+            return weatherDataRepository.findFirstByCityOrderByDateDesc(
+                    city.name()).orElse(weatherAdd(city));
+        } else {
+            return weatherDataRepository.findFirstByCityAndDateBeforeOrderByDateDesc(
+                    city.name(), date);
+        }
     }
 
-
     @Transactional(readOnly = true)
-    protected WeatherData weatherAdd(@NotNull City city) {
+    public WeatherData weatherAdd(@NotNull City city) {
 
         Root rootWeather = webClient
                 .get()
@@ -80,7 +80,7 @@ public class WeatherDataService {
         return weatherData;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Scheduled(fixedRate = 300000)
     void saveWeather() {
         weatherAdd(City.BREST);
